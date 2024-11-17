@@ -4,12 +4,27 @@ SRC = src
 LIB = $(SRC)/include
 BLD = build
 
-test:
-	mkdir -p $(BLD)/{$(SRC),$(LIB)}
-	mkdir -p $(BLD)/$(LIB)/board
-	$(CC) -c $(SRC)/test.cc -o $(BLD)/$(SRC)/test.o
-	$(CC) -c $(LIB)/board/can.cc -o $(BLD)/$(LIB)/board/can.o
-	$(CC) $(BLD)/$(SRC)/test.o $(BLD)/$(LIB)/board/can.o -o $(BLD)/test
+define BLD_OBJS
+	$(addsuffix .o,
+	$(addprefix $(BLD)/,$(1)))
+endef
+
+bldstruct = $(addprefix $(BLD)/, \
+			$(shell find $(SRC) -type d))
+
+testfiles = $(SRC)/test $(LIB)/board/can
+
+.PHONY: genstruct
+genstruct:
+	@echo > /dev/null
+	$(foreach d,$(bldstruct), \
+	$(shell mkdir -p $(d)))
+
+test: genstruct
+	for f in $(testfiles); do \
+		$(CC) -c $${f}.cc -o $(BLD)/$${f}.o; \
+	done
+	$(CC) $(call BLD_OBJS,$(testfiles)) -o $(BLD)/test
 
 .PHONY: clean
 clean:
