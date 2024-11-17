@@ -36,6 +36,11 @@ void CAN::Receive() {
     }
 }
 
+int RegisterRxCallback(canid_t can_id, can_rx_callback_t callback, void *args)
+{
+    return 0;
+}
+
 void CAN::Close() {
     close(s);
 }

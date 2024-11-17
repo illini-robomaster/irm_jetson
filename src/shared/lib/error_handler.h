@@ -28,7 +28,7 @@
   do                                                  \
   {                                                   \
     if (!(cond))                                      \
-      bsp_error_handler(__FUNCTION__, __LINE__, msg); \
+      error_handler(__FUNCTION__, __LINE__, msg); \
   } while (0)
 #define RM_EXPECT_FALSE(cond, msg) RM_EXPECT_TRUE(!(cond), msg)
 #define RM_EXPECT_EQ(expr, ref, msg) RM_EXPECT_TRUE((expr) == (ref), msg)
@@ -43,7 +43,7 @@
   {                                                   \
     if (!(cond))                                      \
     {                                                 \
-      bsp_error_handler(__FUNCTION__, __LINE__, msg); \
+      error_handler(__FUNCTION__, __LINE__, msg); \
       while (1)                                       \
         ;                                             \
     }                                                 \

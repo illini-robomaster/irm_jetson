@@ -19,8 +19,9 @@
  ****************************************************************************/
 
 #include "main.h"
+#include "can.h"
 #include "motor.h"
-#include "bsp_error_handler.h"
+#include "error_handler.h"
 #include "utils.h"
 #include "math.h"
 
@@ -119,7 +120,6 @@ namespace control
 
   Motor3508::Motor3508(CANRAW::CAN *can, uint16_t rx_id) : MotorCANBase(can, rx_id)
   {
-    can->RegisterRxCallback(rx_id, can_motor_callback, this);
   }
 
   void Motor3508::UpdateData(const uint8_t data[])
@@ -139,10 +139,10 @@ namespace control
 
   void Motor3508::PrintData() const
   {
-    print("theta: % .4f ", GetTheta());
-    print("omega: % .4f ", GetOmega());
-    print("raw temperature: %3d ", raw_temperature_);
-    print("raw current get: % d \r\n", raw_current_get_);
+    printf("theta: % .4f ", GetTheta());
+    printf("omega: % .4f ", GetOmega());
+    printf("raw temperature: %3d ", raw_temperature_);
+    printf("raw current get: % d \r\n", raw_current_get_);
   }
 
   void Motor3508::SetOutput(int16_t val)
