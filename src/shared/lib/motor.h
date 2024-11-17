@@ -26,6 +26,29 @@
 
 namespace control
 {
+  constexpr int MOTOR_RANGE = 30000; // TODO: 32767 or 30000?
+
+  /**
+   * @brief two modes for GetTheta()
+   *  absolute_mode: -inf to +inf (Default option)
+   *  relative_mode: 0 - 2pi
+   **/
+  enum GetThetaMode
+  {
+    absolute_mode,
+    relative_mode
+  };
+
+  int16_t ClipMotorRange(float output);
+
+  // mode_t is the mode for Motor DM4310
+  typedef enum
+  {
+    MIT = 0,
+    POS_VEL = 1,
+    VEL = 2,
+  } mode_t;
+
   //==================================================================================================
   // MotorBase
   //==================================================================================================
@@ -154,10 +177,56 @@ namespace control
   };
 
   //==================================================================================================
-  // ServoMotor
+  // Motor2006
   //==================================================================================================
 
-  
+  /**
+   * @brief DJI 2006 motor class
+   */
+  class Motor2006 : public MotorCANBase
+  {
+  public:
+    /* constructor wrapper over MotorCANBase */
+    Motor2006(CANRAW::CAN *can, uint16_t rx_id);
+    /* implements data update callback */
+    void UpdateData(const uint8_t data[]) override final;
+    /* implements data printout */
+    void PrintData() const override final;
+    /* override base implementation with max current protection */
+    void SetOutput(int16_t val) override final;
 
+    int16_t GetCurr() const override final;
+
+  private:
+    volatile int16_t raw_current_get_ = 0;
+  };
+
+  //==================================================================================================
+  // Motor3508
+  //==================================================================================================
+
+  /**
+   * @brief DJI 3508 motor class
+   */
+  class Motor3508 : public MotorCANBase
+  {
+  public:
+    /* constructor wrapper over MotorCANBase */
+    Motor3508(CANRAW::CAN *can, uint16_t rx_id);
+    /* implements data update callback */
+    void UpdateData(const uint8_t data[]) override final;
+    /* implements data printout */
+    void PrintData() const override final;
+    /* override base implementation with max current protection */
+    void SetOutput(int16_t val) override final;
+
+    int16_t GetCurr() const override final;
+
+    uint16_t GetTemp() const override final;
+
+  private:
+    volatile int16_t raw_current_get_ = 0;
+    volatile uint8_t raw_temperature_ = 0;
+  };
 }
 #endif MOTOR_H
