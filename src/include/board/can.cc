@@ -19,7 +19,7 @@ CAN::CAN(const char* name) {
     }
 }
 
-void CAN::SetTX(canid_t can_id, uint8_t *dat, int len) {
+void CAN::SetTx(canid_t can_id, uint8_t *dat, int len) {
     ftx.can_id = can_id;
     ftx.can_dlc = clamp(len, 0, CAN_MAX_DLEN);
     memcpy(ftx.data, dat, sizeof(uint8_t) * ftx.can_dlc);

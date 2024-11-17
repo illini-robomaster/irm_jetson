@@ -9,7 +9,7 @@ void sendtest() {
 
     CANRAW::CAN *can0 = new CANRAW::CAN("can0");
 
-    can0->SetTX(0x200, dat, len);
+    can0->SetTx(0x200, dat, len);
     for (i = 0; i < 10; i++) {
         can0->Transmit();
     }
