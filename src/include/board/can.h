@@ -20,8 +20,7 @@ constexpr const T& clamp(const T& v, const T& lo, const T& hi)
 class CAN {
   public:
     CAN(const char* name = "can0");
-    void SetTx(canid_t can_id, uint8_t *dat, int len);
-    void Transmit();
+    void Transmit(canid_t can_id, uint8_t *dat, int len);
     void Receive();
     void Close();
     struct can_frame frx;
