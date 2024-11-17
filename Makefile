@@ -4,6 +4,11 @@ SRC = src
 LIB = $(SRC)/include
 BLD = build
 
+define BLD_OBJS
+	$(addsuffix .o,
+	$(addprefix $(BLD)/,$(1)))
+endef
+
 bldstruct = $(addprefix $(BLD)/, \
 			$(shell find $(SRC) -type d))
 
@@ -19,8 +24,7 @@ test: genstruct
 	for f in $(testfiles); do \
 		$(CC) -c $${f}.cc -o $(BLD)/$${f}.o; \
 	done
-	$(CC) $(addsuffix .o,
-		  $(addprefix $(BLD)/,$(testfiles))) -o $(BLD)/test
+	$(CC) $(call BLD_OBJS,$(testfiles)) -o $(BLD)/test
 
 .PHONY: clean
 clean:
