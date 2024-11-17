@@ -55,19 +55,109 @@ namespace control
    *
    */
 
-  class MotorDJICanBase : public MotorBase
+  class MotorCANBase : public MotorBase
   {
   public:
     /**
-     * @brief base constructor
+     * @brief base constructor for DJI based CAN Motors
      *
      * @param can    CAN instance
      * @param rx_id  CAN rx id
+     *
      */
-    MotorDJICanBase(CANRAW::Can *can, uint16_t rx_id);
+    MotorCANBase(CANRAW::CAN *can, uint16_t rx_id);
+
+    /**
+     * @brief base constructor for other based CAN Motors
+     *
+     * @param can    CAN instance
+     * @param rx_id  CAN rx id
+     * @param type   Motor type
+     *
+     */
+    MotorCANBase(CANRAW::CAN *can, uint16_t rx_id, uint16_t type);
+
+    /**
+     * @brief update motor feedback data
+     * @note only used in CAN callback, do not call elsewhere
+     *
+     * @param data[]  raw data bytes
+     */
+    virtual void UpdateData(const uint8_t data[]) = 0;
+
+    /**
+     * @brief print out motor data
+     */
+    virtual void PrintData() const = 0;
+
+    /**
+     * @brief get rotor (the cap spinning on the back of the motor) angle, in [rad]
+     *
+     * @return radian angle, range between [0, 2PI]
+     */
+    virtual float GetTheta() const;
+
+    /**
+     * @brief get angle difference (target - actual), in [rad]
+     *
+     * @param target  target angle, in [rad]
+     *
+     * @return angle difference, range between [-PI, PI]
+     */
+    virtual float GetThetaDelta(const float target) const;
+
+    /**
+     * @brief get angular velocity, in [rad / s]
+     *
+     * @return angular velocity
+     */
+    virtual float GetOmega() const;
+
+    /**
+     * @brief get angular velocity difference (target - actual), in [rad / s]
+     *
+     * @param target  target angular velocity, in [rad / s]
+     *
+     * @return difference angular velocity
+     */
+    virtual float GetOmegaDelta(const float target) const;
+
+    virtual int16_t GetCurr() const;
+
+    virtual uint16_t GetTemp() const;
+
+    virtual float GetTorque() const;
+
+    /**
+     * @brief transmit CAN message for setting motor outputs
+     *
+     * @param motors[]    array of CAN motor pointers
+     * @param num_motors  number of motors to transmit
+     */
+    static void TransmitOutput(MotorCANBase *motors[], uint8_t num_motors);
+    /**
+     * @brief set ServoMotor as friend of MotorCANBase since they need to use
+     *        many of the private parameters of MotorCANBase.
+     */
+    friend class ServoMotor;
+
+    volatile bool connection_flag_ = false;
+
+  protected:
+    volatile float theta_;
+    volatile float omega_;
+
+  private:
+    CANRAW::CAN *can_;
+    uint16_t rx_id_;
+    uint16_t tx_id_;
+  };
+
+  //==================================================================================================
+  // ServoMotor
+  //==================================================================================================
 
   
 
-  };
 }
 #endif MOTOR_H
