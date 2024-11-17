@@ -21,7 +21,7 @@
 #pragma once
 
 #include "stdint.h"
-
+#include <cstdio>
 /**
  * @brief clip a value to fall into a given range
  *

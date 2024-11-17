@@ -20,9 +20,7 @@
 
 #pragma once
 
-// TODO: need to implement UART for serial printing in case of failure at different levels
-
-#define SER_DEBUG print("[DEBUG] %s:%d ", __FUNCTION__, __LINE__)
+#define DEBUG printf("[DEBUG] %s:%d ", __FUNCTION__, __LINE__)
 // non-fatal assertions (does not hang)
 #define RM_EXPECT_TRUE(cond, msg)                     \
   do                                                  \
