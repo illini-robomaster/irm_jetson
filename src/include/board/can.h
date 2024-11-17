@@ -1,4 +1,3 @@
-#include <string>
 #include <cstring>
 #include <stdint.h>
 #include <unistd.h>
@@ -18,9 +17,9 @@ constexpr const T& clamp(const T& v, const T& lo, const T& hi)
     return v < lo ? lo : hi < v ? hi : v;
 }
 
-class Can {
+class CAN {
   public:
-    Can(string name = "can0");
+    CAN(const char* name = "can0");
     void SetTX(canid_t can_id, uint8_t *dat, int len);
     void Transmit();
     void Receive();

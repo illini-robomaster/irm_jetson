@@ -2,7 +2,7 @@
 
 namespace CANRAW {
 
-Can::Can(string name) {
+CAN::CAN(const char* name) {
     s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
     if (s < 1) {
         std::cerr << "Error while opening socket" << std::endl;
@@ -19,27 +19,27 @@ Can::Can(string name) {
     }
 }
 
-void Can::SetTX(canid_t can_id, uint8_t *dat, int len) {
+void CAN::SetTX(canid_t can_id, uint8_t *dat, int len) {
     ftx.can_id = can_id;
-    ftx.len = clamp(len, CANXL_MIN_DLEN, CAN_MAX_DLEN);
+    ftx.can_dlc = clamp(len, 0, CAN_MAX_DLEN);
     memcpy(ftx.data, dat, sizeof(uint8_t) * ftx.can_dlc);
 }
 
-void Can::Transmit() {
+void CAN::Transmit() {
     if (write(s, &ftx, sizeof(struct can_frame)) !=
             sizeof(struct can_frame)) {
         std::cerr << "Error while sending CAN frame" << std::endl;
     }
 }
 
-void Can::Receive() {
+void CAN::Receive() {
     if (read(s, &frx, sizeof(struct can_frame)) !=
             sizeof(struct can_frame)) {
         std::cerr << "Error while receiving CAN frame" << std::endl;
     }
 }
 
-void Can::Close() {
+void CAN::Close() {
     close(s);
 }
 
