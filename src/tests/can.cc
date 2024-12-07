@@ -1,6 +1,6 @@
 #include "stdio.h"
 #include "stdint.h"
-#include "include/board/can.h"
+#include "board/can.h"
 
 void sendtest() {
     int i;
@@ -16,9 +16,9 @@ void sendtest() {
 }
 
 int main() {
-    std::cout << "Start send test" << std::endl;
+    std::cout << "Start can send test" << std::endl;
     sendtest();
-    std::cout << "End send test" << std::endl;
+    std::cout << "End can send test" << std::endl;
 
     return 0;
 }
