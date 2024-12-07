@@ -29,6 +29,8 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 
+#pragma once
+
 namespace CANRAW {
 
   typedef void (*can_rx_callback_t)(const uint8_t data[], void *args);

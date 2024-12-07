@@ -18,11 +18,11 @@
  *                                                                          *
  ****************************************************************************/
 
-#ifndef MOTOR_H
-#define MOTOR_H
-
 #pragma once
-#include "can.h"
+
+#define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
+
+#include "board/can.h"
 
 namespace control
 {
@@ -229,4 +229,3 @@ namespace control
     volatile uint8_t raw_temperature_ = 0;
   };
 }
-#endif MOTOR_H

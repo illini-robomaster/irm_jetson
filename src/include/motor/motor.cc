@@ -18,8 +18,7 @@
  *                                                                          *
  ****************************************************************************/
 
-#include "main.h"
-#include "can.h"
+#include "board/can.h"
 #include "motor.h"
 #include "error_handler.h"
 #include "utils.h"

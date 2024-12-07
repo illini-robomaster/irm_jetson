@@ -21,11 +21,22 @@
 project(test CXX)
 set(INC ${CMAKE_SOURCE_DIR}/src/include)
 
+FILE(GLOB BOARD ${INC}/board/*.cc)
+FILE(GLOB MOTOR ${INC}/motor/*.cc)
+
+# test_can
 add_executable(${PROJECT_NAME}_can)
 target_sources(${PROJECT_NAME}_can PRIVATE
     "can.cc"
-    "${INC}/board/can.cc"
+    ${BOARD}
 )
-target_include_directories(${PROJECT_NAME}_can PRIVATE
-    ${INC}
+target_include_directories(${PROJECT_NAME}_can PRIVATE ${INC})
+
+# test_motor
+add_executable(${PROJECT_NAME}_motor)
+target_sources(${PROJECT_NAME}_motor PRIVATE
+    "motor.cc"
+    ${BOARD}
+    ${MOTOR}
 )
+target_include_directories(${PROJECT_NAME}_motor PRIVATE ${INC})
