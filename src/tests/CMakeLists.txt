@@ -33,10 +33,10 @@ target_sources(${PROJECT_NAME}_can PRIVATE
 target_include_directories(${PROJECT_NAME}_can PRIVATE ${INC})
 
 # test_motor
-add_executable(${PROJECT_NAME}_motor)
-target_sources(${PROJECT_NAME}_motor PRIVATE
-    "motor.cc"
+add_executable(${PROJECT_NAME}_motor_m3508)
+target_sources(${PROJECT_NAME}_motor_m3508 PRIVATE
+    "motor_m3508.cc"
     ${BOARD}
     ${MOTOR}
 )
-target_include_directories(${PROJECT_NAME}_motor PRIVATE ${INC})
+target_include_directories(${PROJECT_NAME}_motor_m3508 PRIVATE ${INC})
