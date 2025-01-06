@@ -40,3 +40,12 @@ target_sources(${PROJECT_NAME}_motor_m3508 PRIVATE
     ${MOTOR}
 )
 target_include_directories(${PROJECT_NAME}_motor_m3508 PRIVATE ${INC})
+
+# test_can_feedback
+add_executable(${PROJECT_NAME}_can_feedback)
+target_sources(${PROJECT_NAME}_can_feedback PRIVATE
+    "feedback_frame.cc"
+    ${BOARD}
+    ${MOTOR}
+)
+target_include_directories(${PROJECT_NAME}_can_feedback PRIVATE ${INC})

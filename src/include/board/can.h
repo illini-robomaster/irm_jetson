@@ -22,6 +22,8 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <iostream>
+#include <stdio.h>
+#include <map>
 
 #include <net/if.h>
 #include <linux/can.h>
@@ -30,6 +32,8 @@
 #include <sys/socket.h>
 
 #pragma once
+
+#define MAX_CAN_DEVICES 12
 
 namespace CANRAW {
 
@@ -41,6 +45,8 @@ namespace CANRAW {
     return v < lo ? lo : hi < v ? hi : v;
 }
 
+typedef void (*can_rx_callback_t)(const uint8_t data[], void *args);
+
 class CAN {
   public:
     CAN(const char* name = "can0");
@@ -48,9 +54,14 @@ class CAN {
     void Receive();
     void Close();
     int RegisterRxCallback(canid_t can_id, can_rx_callback_t callback, void *args);
+    void RxCallback();
     struct can_frame frx;
   private:
     int s;
+    can_rx_callback_t rx_callbacks_[MAX_CAN_DEVICES] = {0x0};
+    void *rx_args_[MAX_CAN_DEVICES] = {NULL};
+    std::map<uint16_t, uint8_t> id_to_index_;
+    uint8_t callback_count_ = 0;
     struct sockaddr_can addr;
     struct ifreq ifr;
     struct can_frame ftx;

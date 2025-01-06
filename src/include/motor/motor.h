@@ -23,6 +23,7 @@
 #define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
 
 #include "board/can.h"
+#include "utils.h"
 
 namespace control
 {
@@ -229,3 +230,74 @@ namespace control
     volatile uint8_t raw_temperature_ = 0;
   };
 }
+
+//==================================================================================================
+// ServoMotor
+//==================================================================================================
+
+/**
+ * @brief transmission ratios of DJI motors, reference to motor manuals for more details
+ */
+#define M3508P19_RATIO (3591.0 / 187) /* Transmission ratio of M3508P19 */
+#define M2006P36_RATIO 36             /* Transmission ratio of M2006P36 */
+
+typedef struct
+{
+  control::MotorCANBase *motor; /* motor instance to be wrapped as a servomotor      */
+  float max_speed;              /* desired turning speed of motor shaft, in [rad/s]  */
+  float max_acceleration;       /* desired acceleration of motor shaft, in [rad/s^2] */
+  float transmission_ratio;     /* transmission ratio of motor                       */
+  float *omega_pid_param;       /* pid parameter used to control speed of motor      */
+  float max_iout;
+  float max_out;
+} servo_t;
+
+/**
+ * @brief servomotor status
+ * @note the turning direction is determined as if user is facing the motor, may subject to
+ *       change depending on motor type
+ */
+typedef enum
+{
+  TURNING_CLOCKWISE = -1,   /* Servomotor is turning clockwisely         */
+  INPUT_REJECT = 0,         /* Servomotor rejecting current target input */
+  TURNING_ANTICLOCKWISE = 1 /* Servomotor is turning anticlockwisely     */
+} servo_status_t;
+
+/**
+ * @brief ServoMotor class
+ */
+class ServoMotor : public control::MotorCANBase
+{
+public:
+  /* constructor wrapper over MotorCANBase */
+  ServoMotor(servo_t *servo, float align_angle = -1, float proximity_in = 0.05, float proximity_out = 0.05);
+
+  servo_status_t SetTarget(const float target, bool override = false);
+
+  void SetMaxSpeed(const float max_speed);
+
+  void SetMaxAcceleration(const float max_acceleration);
+
+  void Calcoutput();
+
+  bool Holding() const;
+
+  float GetTarget() const;
+
+private:
+  control::MotorCANBase *motor_;
+  float max_speed_;
+  float max_acceleration_;
+  float transmission_ratio_;
+  float proximity_in_;
+  float proximity_out_;
+
+  bool hold_;
+  uint32_t start_time_;
+  float target_angle_;
+  float align_angle_;
+  float motor_angle_;
+  float motor_speed_;
+  float motor_acceleration_;
+};

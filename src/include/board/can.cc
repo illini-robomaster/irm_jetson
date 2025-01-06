@@ -55,9 +55,27 @@ void CAN::Receive() {
     }
 }
 
-int RegisterRxCallback(canid_t can_id, can_rx_callback_t callback, void *args)
+int CAN::RegisterRxCallback(canid_t can_id, can_rx_callback_t callback, void *args)
 {
+    if (callback_count_ >= MAX_CAN_DEVICES)
+    {
+        return -1;
+    }
+    rx_callbacks_[callback_count_] = callback;
+    rx_args_[callback_count_] = args;
+    id_to_index_[can_id] = callback_count_;
+    callback_count_++;
+
     return 0;
+}
+
+void CAN::RxCallback()
+{
+    const auto index = id_to_index_.find(frx.can_id);
+    if (index != id_to_index_.end() && rx_callbacks_[index->second] != 0x0)
+    {
+        rx_callbacks_[index->second](frx.data, rx_args_[index->second]);
+    }
 }
 
 void CAN::Close() {

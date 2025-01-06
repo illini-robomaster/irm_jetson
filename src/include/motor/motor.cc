@@ -89,6 +89,7 @@ namespace control
       RM_ASSERT_EQ(motors[i]->can_, motors[0]->can_, "can line mismatch");
       const uint8_t motor_idx = (motors[i]->rx_id_ - 1) % 4;
       const int16_t output = motors[i]->output_;
+
       data[2 * motor_idx] = output >> 8;
       data[2 * motor_idx + 1] = output & 0xff;
     }
@@ -153,5 +154,12 @@ namespace control
   int16_t Motor3508::GetCurr() const { return raw_current_get_; }
 
   uint16_t Motor3508::GetTemp() const { return raw_temperature_; }
+
+  //==================================================================================================
+  // ServoMotor (as Motor3508 packed as a servo)
+  //==================================================================================================
+
+   
+
 
 } // namespace control
