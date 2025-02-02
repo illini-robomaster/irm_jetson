@@ -37,11 +37,10 @@
 
 namespace CANRAW {
 
-  typedef void (*can_rx_callback_t)(const uint8_t data[], void *args);
+typedef void (*can_rx_callback_t)(const uint8_t data[], void *args);
 
-  template <class T>
-  constexpr const T &clamp(const T &v, const T &lo, const T &hi)
-  {
+template <class T>
+constexpr const T &clamp(const T &v, const T &lo, const T &hi) {
     return v < lo ? lo : hi < v ? hi : v;
 }
 
