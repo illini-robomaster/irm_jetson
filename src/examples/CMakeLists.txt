@@ -18,34 +18,23 @@
 #                                                                        #
 # ---------------------------------------------------------------------- #
 
-project(test CXX)
+project(examples CXX)
 set(INC ${CMAKE_SOURCE_DIR}/src/include)
 
 FILE(GLOB BOARD ${INC}/board/*.cc)
 FILE(GLOB MOTOR ${INC}/motor/*.cc)
 
 # test_can
-add_executable(${PROJECT_NAME}_can)
-target_sources(${PROJECT_NAME}_can PRIVATE
-    "can.cc"
-    ${BOARD}
+add_custom_executable(${PROJECT_NAME}_can
+  SOURCES "can.cc" ${BOARD}
 )
-target_include_directories(${PROJECT_NAME}_can PRIVATE ${INC})
 
 # test_motor
-add_executable(${PROJECT_NAME}_motor_m3508)
-target_sources(${PROJECT_NAME}_motor_m3508 PRIVATE
-    "motor_m3508.cc"
-    ${BOARD}
-    ${MOTOR}
+add_custom_executable(${PROJECT_NAME}_motor_m3508
+  SOURCES "motor_m3508.cc" ${BOARD} ${MOTOR}
 )
-target_include_directories(${PROJECT_NAME}_motor_m3508 PRIVATE ${INC})
 
 # test_can_feedback
-add_executable(${PROJECT_NAME}_can_feedback)
-target_sources(${PROJECT_NAME}_can_feedback PRIVATE
-    "feedback_frame.cc"
-    ${BOARD}
-    ${MOTOR}
+add_custom_executable(${PROJECT_NAME}_can_feedback
+  SOURCES "feedback_frame.cc" ${BOARD} ${MOTOR}
 )
-target_include_directories(${PROJECT_NAME}_can_feedback PRIVATE ${INC})
