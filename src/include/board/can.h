@@ -20,16 +20,14 @@
 
 #include <cstring>
 #include <iostream>
-#include <map>
-#include <stdint.h>
-#include <stdio.h>
-#include <unistd.h>
-
 #include <linux/can.h>
 #include <linux/can/raw.h>
+#include <map>
 #include <net/if.h>
+#include <stdint.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #pragma once
 
@@ -52,20 +50,17 @@ public:
   void Transmit(canid_t can_id, uint8_t *dat, int len);
   void Receive();
   void Close();
-  int RegisterRxCallback(canid_t can_id, can_rx_callback_t callback,
-                         void *args);
-  void RxCallback();
+  int RegisterCanDevice(canid_t can_id, can_rx_callback_t callback,
+                        void *args = nullptr);
+  int DeregisterCanDevice(canid_t can_id);
   struct can_frame frx;
 
 private:
   int s;
-  can_rx_callback_t rx_callbacks_[MAX_CAN_DEVICES] = {0x0};
-  void *rx_args_[MAX_CAN_DEVICES] = {NULL};
-  std::map<uint16_t, uint8_t> id_to_index_;
-  uint8_t callback_count_ = 0;
   struct sockaddr_can addr;
   struct ifreq ifr;
   struct can_frame ftx;
+  std::map<canid_t, std::pair<can_rx_callback_t, void *>> callback_map;
 };
 
 } // namespace CANRAW

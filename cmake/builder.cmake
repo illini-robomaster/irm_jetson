@@ -4,12 +4,16 @@ function(irm_add_executable TARGET_NAME)
   set(options VERBOSE)
   set(oneValueArgs "")
   set(multiValueArgs SOURCES)
-  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(
+    ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
+  )
 
   # Create executable
   add_executable(${TARGET_NAME})
   target_sources(${TARGET_NAME} PRIVATE ${ARG_SOURCES})
-  target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src/include)
+  target_include_directories(
+    ${TARGET_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src/include
+  )
 
   # Create run target
   add_custom_target(run-${TARGET_NAME}

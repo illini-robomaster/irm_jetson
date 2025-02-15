@@ -50,27 +50,32 @@ void CAN::Transmit(canid_t can_id, uint8_t *dat, int len) {
 void CAN::Receive() {
   if (read(s, &frx, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
     std::cerr << "Error while receiving CAN frame" << std::endl;
+    return;
+  }
+  auto it = callback_map.find(frx.can_id);
+  if (it != callback_map.end()) {
+    it->second.first(frx.data, it->second.second);
   }
 }
 
-int CAN::RegisterRxCallback(canid_t can_id, can_rx_callback_t callback,
-                            void *args) {
-  if (callback_count_ >= MAX_CAN_DEVICES) {
+int CAN::RegisterCanDevice(canid_t can_id, can_rx_callback_t callback,
+                           void *args) {
+  if (callback_map.size() >= MAX_CAN_DEVICES) {
+    std::cerr << "Maximum number of CAN devices reached" << std::endl;
     return -1;
   }
-  rx_callbacks_[callback_count_] = callback;
-  rx_args_[callback_count_] = args;
-  id_to_index_[can_id] = callback_count_;
-  callback_count_++;
-
+  callback_map[can_id] = std::make_pair(callback, args);
   return 0;
 }
 
-void CAN::RxCallback() {
-  const auto index = id_to_index_.find(frx.can_id);
-  if (index != id_to_index_.end() && rx_callbacks_[index->second] != 0x0) {
-    rx_callbacks_[index->second](frx.data, rx_args_[index->second]);
+int CAN::DeregisterCanDevice(canid_t can_id) {
+  auto it = callback_map.find(can_id);
+  if (it != callback_map.end()) {
+    callback_map.erase(it);
+    return 0;
   }
+  std::cerr << "Can ID " << can_id << " not registered" << std::endl;
+  return -1;
 }
 
 void CAN::Close() { close(s); }
