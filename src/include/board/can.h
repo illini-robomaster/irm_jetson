@@ -18,6 +18,8 @@
  *                                                                          *
  ****************************************************************************/
 
+#include <atomic>
+#include <chrono>
 #include <cstring>
 #include <iostream>
 #include <linux/can.h>
@@ -27,6 +29,7 @@
 #include <stdint.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <thread>
 #include <unistd.h>
 
 #pragma once
@@ -47,13 +50,50 @@ typedef void (*can_rx_callback_t)(const uint8_t data[], void *args);
 class CAN {
 public:
   CAN(const char *name = "can0");
+  /**
+   * @brief Transmits a CAN message
+   * @param can_id The CAN ID to transmit to
+   * @param dat Pointer to the data to transmit
+   * @param len Length of the data in bytes
+   */
   void Transmit(canid_t can_id, uint8_t *dat, int len);
+
+  /**
+   * @brief Receives a single CAN message
+   * @note This is a blocking call
+   */
   void Receive();
+
+  /**
+   * @brief Closes the CAN socket and cleans up resources
+   */
   void Close();
+
+  /**
+   * @brief Registers a callback for a specific CAN ID
+   * @param can_id The CAN ID to register for
+   * @param callback The callback function to invoke when message received
+   * @param args Optional arguments to pass to the callback
+   * @return 0 on success, -1 on failure
+   */
   int RegisterCanDevice(canid_t can_id, can_rx_callback_t callback,
                         void *args = nullptr);
+
+  /**
+   * @brief Deregisters a callback for a specific CAN ID
+   * @param can_id The CAN ID to deregister
+   * @return 0 on success, -1 if CAN ID not found
+   */
   int DeregisterCanDevice(canid_t can_id);
   struct can_frame frx;
+
+  /**
+   * @brief Starts a thread to continuously receive CAN messages
+   * @param stop_flag Pointer to atomic bool to control thread execution
+   * @param interval_ms Time between receive attempts in microseconds
+   */
+  void StartReceiveThread(std::atomic<bool> *stop_flag, int interval_us = 10);
+  std::atomic<bool> *StartReceiveThread(int interval_us = 10);
 
 private:
   int s;

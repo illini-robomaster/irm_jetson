@@ -7,10 +7,11 @@ int main() {
   control::MotorCANBase *motor = new control::Motor3508(can, 0x207);
   control::MotorCANBase *motors[] = {motor};
 
+  std::atomic<bool> *can_stop_flag = can->StartReceiveThread();
+
   while (true) {
     motor->SetOutput(400);
-    // control::MotorCANBase::TransmitOutput(motors, 1);
-    can->Receive(); // TODO: implement recieve thread
+    control::MotorCANBase::TransmitOutput(motors, 1);
     motor->PrintData();
     usleep(100);
   }

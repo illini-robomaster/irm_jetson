@@ -78,6 +78,21 @@ int CAN::DeregisterCanDevice(canid_t can_id) {
   return -1;
 }
 
+void CAN::StartReceiveThread(std::atomic<bool> *stop_flag, int interval_us) {
+  std::thread([this, stop_flag, interval_us]() {
+    while (!stop_flag->load()) {
+      this->Receive();
+      std::this_thread::sleep_for(std::chrono::microseconds(interval_us));
+    }
+  }).detach();
+}
+
+std::atomic<bool> *CAN::StartReceiveThread(int interval_ms) {
+  std::atomic<bool> *stop_flag = new std::atomic<bool>(false);
+  CAN::StartReceiveThread(stop_flag, interval_ms);
+  return stop_flag;
+}
+
 void CAN::Close() { close(s); }
 
 } // namespace CANRAW
