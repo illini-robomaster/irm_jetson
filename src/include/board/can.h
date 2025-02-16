@@ -50,6 +50,7 @@ typedef void (*can_rx_callback_t)(const uint8_t data[], void *args);
 class CAN {
 public:
   CAN(const char *name = "can0");
+  ~CAN();
   /**
    * @brief Transmits a CAN message
    * @param can_id The CAN ID to transmit to

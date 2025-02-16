@@ -38,6 +38,8 @@ CAN::CAN(const char *name) {
   }
 }
 
+CAN::~CAN() { this->Close(); }
+
 void CAN::Transmit(canid_t can_id, uint8_t *dat, int len) {
   ftx.can_id = can_id;
   ftx.can_dlc = clamp(len, 0, CAN_MAX_DLEN);
