@@ -38,3 +38,8 @@ add_custom_executable(${PROJECT_NAME}_motor_m3508
 add_custom_executable(${PROJECT_NAME}_can_feedback
   SOURCES "feedback_frame.cc" ${BOARD} ${MOTOR}
 )
+
+# test_minipc_packet
+add_custom_executable(${PROJECT_NAME}_minipc_packet
+  SOURCES "create_minipc_packet.cc" ${BOARD}
+)

@@ -1,6 +1,6 @@
 /****************************************************************************
  *                                                                          *
- *  Copyright (C) 2024 RoboMaster.                                          *
+ *  Copyright (C) 2025 RoboMaster.                                          *
  *  Illini RoboMaster @ University of Illinois at Urbana-Champaign          *
  *                                                                          *
  *  This program is free software: you can redistribute it and/or modify    *
@@ -18,54 +18,35 @@
  *                                                                          *
  ****************************************************************************/
 
-#include <cstring>
-#include <iostream>
-#include <map>
-#include <stdint.h>
-#include <stdio.h>
-#include <unistd.h>
-
-#include <linux/can.h>
-#include <linux/can/raw.h>
-#include <net/if.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-
 #pragma once
 
-#define MAX_CAN_DEVICES 12
+#include <stdint.h>
+// #include <string>
 
-namespace CANRAW {
+/**
+ * CRC8 checksum calculation
+ *
+ * @param  pchMessage Message to check
+ * @param  dwLength   Length of the message
+ * @param  ucCRC8     Initialized checksum
+ * @return            CRC checksum
+ */
+uint8_t get_crc8_check_sum(uint8_t *pchMessage, uint16_t dwLength,
+                           uint8_t ucCRC8);
 
-typedef void (*can_rx_callback_t)(const uint8_t data[], void *args);
+/**
+ * Verify CRC8
+ *
+ * @param  pchMessage Message to verify
+ * @param  dwLength   Length = Data + Checksum
+ * @return            1 for true, 0 for false
+ */
+uint8_t verify_crc8_check_sum(uint8_t *pchMessage, uint16_t dwLength);
 
-template <class T>
-constexpr const T &clamp(const T &v, const T &lo, const T &hi) {
-  return v < lo ? lo : hi < v ? hi : v;
-}
-
-typedef void (*can_rx_callback_t)(const uint8_t data[], void *args);
-
-class CAN {
-public:
-  CAN(const char *name = "can0");
-  void Transmit(canid_t can_id, uint8_t *dat, int len);
-  void Receive();
-  void Close();
-  int RegisterRxCallback(canid_t can_id, can_rx_callback_t callback,
-                         void *args);
-  void RxCallback();
-  struct can_frame frx;
-
-private:
-  int s;
-  can_rx_callback_t rx_callbacks_[MAX_CAN_DEVICES] = {0x0};
-  void *rx_args_[MAX_CAN_DEVICES] = {NULL};
-  std::map<uint16_t, uint8_t> id_to_index_;
-  uint8_t callback_count_ = 0;
-  struct sockaddr_can addr;
-  struct ifreq ifr;
-  struct can_frame ftx;
-};
-
-} // namespace CANRAW
+/**
+ * Append CRC8 to the end of message
+ *
+ * @param  pchMessage Message to calculate CRC and append
+ * @param  dwLength   Length = Data + Checksum
+ */
+void append_crc8_check_sum(uint8_t *pchMessage, uint16_t dwLength);
