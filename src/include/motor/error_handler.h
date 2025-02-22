@@ -1,6 +1,6 @@
 /****************************************************************************
  *                                                                          *
- *  Copyright (C) 2024 RoboMaster.                                          *
+ *  Copyright (C) 2025 RoboMaster.                                          *
  *  Illini RoboMaster @ University of Illinois at Urbana-Champaign          *
  *                                                                          *
  *  This program is free software: you can redistribute it and/or modify    *
@@ -22,11 +22,10 @@
 
 #define DEBUG printf("[DEBUG] %s:%d ", __FUNCTION__, __LINE__)
 // non-fatal assertions (does not hang)
-#define RM_EXPECT_TRUE(cond, msg)                     \
-  do                                                  \
-  {                                                   \
-    if (!(cond))                                      \
-      error_handler(__FUNCTION__, __LINE__, msg); \
+#define RM_EXPECT_TRUE(cond, msg)                                              \
+  do {                                                                         \
+    if (!(cond))                                                               \
+      error_handler(__FUNCTION__, __LINE__, msg);                              \
   } while (0)
 #define RM_EXPECT_FALSE(cond, msg) RM_EXPECT_TRUE(!(cond), msg)
 #define RM_EXPECT_EQ(expr, ref, msg) RM_EXPECT_TRUE((expr) == (ref), msg)
@@ -36,15 +35,13 @@
 #define RM_EXPECT_LT(expr, ref, msg) RM_EXPECT_TRUE((expr) < (ref), msg)
 #define RM_EXPECT_LE(expr, ref, msg) RM_EXPECT_TRUE((expr) <= (ref), msg)
 // fatal assertions (hangs program)
-#define RM_ASSERT_TRUE(cond, msg)                     \
-  do                                                  \
-  {                                                   \
-    if (!(cond))                                      \
-    {                                                 \
-      error_handler(__FUNCTION__, __LINE__, msg); \
-      while (1)                                       \
-        ;                                             \
-    }                                                 \
+#define RM_ASSERT_TRUE(cond, msg)                                              \
+  do {                                                                         \
+    if (!(cond)) {                                                             \
+      error_handler(__FUNCTION__, __LINE__, msg);                              \
+      while (1)                                                                \
+        ;                                                                      \
+    }                                                                          \
   } while (0)
 #define RM_ASSERT_FALSE(cond, msg) RM_ASSERT_TRUE(!(cond), msg)
 #define RM_ASSERT_EQ(expr, ref, msg) RM_ASSERT_TRUE((expr) == (ref), msg)

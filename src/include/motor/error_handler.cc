@@ -1,6 +1,6 @@
 /****************************************************************************
  *                                                                          *
- *  Copyright (C) 2024 RoboMaster.                                          *
+ *  Copyright (C) 2025 RoboMaster.                                          *
  *  Illini RoboMaster @ University of Illinois at Urbana-Champaign          *
  *                                                                          *
  *  This program is free software: you can redistribute it and/or modify    *
@@ -21,8 +21,7 @@
 #include "error_handler.h"
 #include <cstdio>
 
-void error_handler(const char *func, int line, const char *msg)
-{
+void error_handler(const char *func, int line, const char *msg) {
   printf("[ERROR at ");
   printf("%s:", func);
   printf("%d] ", line);
