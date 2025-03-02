@@ -1,9 +1,12 @@
 #include "board/minipc_protocol.h"
+#include "board/uart.h"
 #include <iostream>
 
 auto minipc_session = communication::MinipcPort();
 
 int main() {
+  UART::UART *uart = new UART::UART("placeholder");
+
   communication::selfcheck_data_t sc_dat;
   uint8_t packet_to_send[minipc_session.MAX_PACKET_LENGTH];
 

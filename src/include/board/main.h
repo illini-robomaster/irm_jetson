@@ -17,11 +17,14 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.    *
  *                                                                          *
  ****************************************************************************/
-
 #ifndef MAIN_H
 #define MAIN_H
-#include "can.h"
 
-#define UNUSED(X) (void)X /* To avoid gcc/g++ warnings */
+#define UNUSED(X) (void)X // To avoid gcc/g++ warnings
 
-#endif MAIN_H
+#define SERIAL_DIRNAME "/dev/serial/by-id/"
+#define INPUT_DIRNAME "/dev/input/by-id/"
+
+#define PREF_CBOARD "usb-STMicroelectronics_STM32_STLink_"
+
+#endif
