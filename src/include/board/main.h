@@ -22,6 +22,9 @@
 
 #define UNUSED(X) (void)X // To avoid gcc/g++ warnings
 
+#define SERIAL_SSIZE_READMAX _POSIX_SSIZE_MAX
+#define SERIAL_SSIZE_WRITEMAX _POSIX_SSIZE_MAX
+
 #define SERIAL_DIRNAME "/dev/serial/by-id/"
 #define INPUT_DIRNAME "/dev/input/by-id/"
 
