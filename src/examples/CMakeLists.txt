@@ -24,22 +24,22 @@ set(INC ${CMAKE_SOURCE_DIR}/src/include)
 FILE(GLOB BOARD ${INC}/board/*.cc)
 FILE(GLOB MOTOR ${INC}/motor/*.cc)
 
-# test_can
-add_custom_executable(${PROJECT_NAME}_can
-  SOURCES "can.cc" ${BOARD}
+# can_send
+irm_add_executable(${PROJECT_NAME}_can_send
+  SOURCES "can_send.cc" ${BOARD}
 )
 
-# test_motor
-add_custom_executable(${PROJECT_NAME}_motor_m3508
+# can_recieve
+irm_add_executable(${PROJECT_NAME}_can_recieve
+  SOURCES "can_recieve.cc" ${BOARD} ${MOTOR}
+)
+
+# motor_m3508
+irm_add_executable(${PROJECT_NAME}_motor_m3508
   SOURCES "motor_m3508.cc" ${BOARD} ${MOTOR}
 )
 
-# test_can_feedback
-add_custom_executable(${PROJECT_NAME}_can_feedback
-  SOURCES "feedback_frame.cc" ${BOARD} ${MOTOR}
-)
-
-# test_minipc_packet
-add_custom_executable(${PROJECT_NAME}_minipc_packet
-  SOURCES "create_minipc_packet.cc" ${BOARD}
+# uart_minipc
+irm_add_executable(${PROJECT_NAME}_uart_minipc
+  SOURCES "uart_minipc.cc" ${BOARD}
 )
