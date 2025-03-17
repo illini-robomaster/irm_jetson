@@ -24,6 +24,7 @@ namespace communication {
 
 // For definitions of constants, check out the documentation at
 // illini-robomaster/iRM_Vision_2023/docs/comm_protocol.md
+constexpr uint8_t MinipcPort::CMD_TO_LEN[TOTAL_NUM_OF_ID];
 static constexpr uint8_t SEQNUM_OFFSET = 2;
 static constexpr uint8_t DATA_LENGTH_OFFSET = SEQNUM_OFFSET + 2;
 static constexpr uint8_t CMD_ID_OFFSET = DATA_LENGTH_OFFSET + 1;

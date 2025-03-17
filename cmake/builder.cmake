@@ -1,4 +1,7 @@
-# Custom function to create executable and run target
+# Compatibility
+set(REQUIRED_LIBS stdc++fs)
+
+# Custom function to create executables and run targets
 function(irm_add_executable TARGET_NAME)
   # Parse arguments
   set(options VERBOSE)
@@ -14,6 +17,8 @@ function(irm_add_executable TARGET_NAME)
   target_include_directories(
     ${TARGET_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src/include
   )
+
+  target_link_libraries(${TARGET_NAME} PRIVATE ${REQUIRED_LIBS})
 
   # Create run target
   add_custom_target(run-${TARGET_NAME}

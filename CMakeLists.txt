@@ -22,6 +22,9 @@ cmake_minimum_required(VERSION 3.14)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_C_COMPILER "/bin/gcc-9")
+set(CMAKE_CXX_COMPILER "/bin/g++-9")
+
 project(iRM_Jetson CXX)
 
 include(cmake/builder.cmake)
