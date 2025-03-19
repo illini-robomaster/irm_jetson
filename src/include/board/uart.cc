@@ -2,7 +2,11 @@
 #include "board/main.h"
 #include <termios.h>
 
+#if defined(__GNUC__) && __GNUC__ <= 9
 namespace fs = std::experimental::filesystem;
+#else
+namespace fs = std::filesystem;
+#endif
 
 namespace UARTSERIAL {
 

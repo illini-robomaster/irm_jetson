@@ -25,21 +25,21 @@ FILE(GLOB BOARD ${INC}/board/*.cc)
 FILE(GLOB MOTOR ${INC}/motor/*.cc)
 
 # can_send
-irm_add_executable(${PROJECT_NAME}_can_send
+irm_add_executable(${PROJECT_NAME}-can_send
   SOURCES "can_send.cc" ${BOARD}
 )
 
 # can_recieve
-irm_add_executable(${PROJECT_NAME}_can_recieve
+irm_add_executable(${PROJECT_NAME}-can_recieve
   SOURCES "can_recieve.cc" ${BOARD} ${MOTOR}
 )
 
 # motor_m3508
-irm_add_executable(${PROJECT_NAME}_motor_m3508
+irm_add_executable(${PROJECT_NAME}-motor_m3508
   SOURCES "motor_m3508.cc" ${BOARD} ${MOTOR}
 )
 
 # uart_minipc
-irm_add_executable(${PROJECT_NAME}_uart_minipc
+irm_add_executable(${PROJECT_NAME}-uart_minipc
   SOURCES "uart_minipc.cc" ${BOARD}
 )
