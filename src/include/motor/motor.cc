@@ -34,9 +34,9 @@ int16_t ClipMotorRange(float output) {
   return (int16_t)clip<int>((int)output, MIN, MAX);
 }
 
-//==================================================================================================
+//=============================================================================
 // MotorCanBase(DJI Base)
-//==================================================================================================
+//=============================================================================
 
 /**
  * @brief standard can motor callback, used to update motor data
@@ -115,9 +115,9 @@ uint16_t MotorCANBase::GetTemp() const { return 0; }
 
 float MotorCANBase::GetTorque() const { return 0.0f; }
 
-//==================================================================================================
+//=============================================================================
 // Motor3508
-//==================================================================================================
+//=============================================================================
 
 Motor3508::Motor3508(CANRAW::CAN *can, uint16_t rx_id)
     : MotorCANBase(can, rx_id) {}
@@ -152,8 +152,41 @@ int16_t Motor3508::GetCurr() const { return raw_current_get_; }
 
 uint16_t Motor3508::GetTemp() const { return raw_temperature_; }
 
-//==================================================================================================
-// ServoMotor (as Motor3508 packed as a servo)
-//==================================================================================================
+//=============================================================================
+// Motor6020
+//=============================================================================
+
+Motor6020::Motor6020(CANRAW::CAN *can, uint16_t rx_id)
+    : MotorCANBase(can, rx_id) {}
+
+void Motor6020::UpdateData(const uint8_t data[]) {
+  const int16_t raw_theta = data[0] << 8 | data[1];
+  const int16_t raw_omega = data[2] << 8 | data[3];
+  raw_current_get_ = data[4] << 8 | data[5];
+  raw_temperature_ = data[6];
+
+  constexpr float THETA_SCALE = 2 * M_PI / 8192; // digital -> rad
+  constexpr float OMEGA_SCALE = 2 * M_PI / 60;   // rpm -> rad / sec
+  theta_ = raw_theta * THETA_SCALE;
+  omega_ = raw_omega * OMEGA_SCALE;
+
+  connection_flag_ = true;
+}
+
+void Motor6020::PrintData() const {
+  printf("theta: % .4f ", GetTheta());
+  printf("omega: % .4f ", GetOmega());
+  printf("raw temperature: %3d ", raw_temperature_);
+  printf("raw current get: % d \r\n", raw_current_get_);
+}
+
+void Motor6020::SetOutput(int16_t val) {
+  constexpr int16_t MAX_ABS_CURRENT = 30000; // ~
+  output_ = clip<int16_t>(val, -MAX_ABS_CURRENT, MAX_ABS_CURRENT);
+}
+
+int16_t Motor6020::GetCurr() const { return raw_current_get_; }
+
+uint16_t Motor6020::GetTemp() const { return raw_temperature_; }
 
 } // namespace control

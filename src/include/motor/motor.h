@@ -222,76 +222,32 @@ private:
   volatile int16_t raw_current_get_ = 0;
   volatile uint8_t raw_temperature_ = 0;
 };
-} // namespace control
 
 //==================================================================================================
-// ServoMotor
+// Motor6020
 //==================================================================================================
 
 /**
- * @brief transmission ratios of DJI motors, reference to motor manuals for more
- * details
+ * @brief DJI 6020 motor class
  */
-#define M3508P19_RATIO (3591.0 / 187) /* Transmission ratio of M3508P19 */
-#define M2006P36_RATIO 36             /* Transmission ratio of M2006P36 */
-
-typedef struct {
-  control::MotorCANBase
-      *motor;      /* motor instance to be wrapped as a servomotor      */
-  float max_speed; /* desired turning speed of motor shaft, in [rad/s]  */
-  float
-      max_acceleration; /* desired acceleration of motor shaft, in [rad/s^2] */
-  float transmission_ratio; /* transmission ratio of motor */
-  float *omega_pid_param;   /* pid parameter used to control speed of motor   */
-  float max_iout;
-  float max_out;
-} servo_t;
-
-/**
- * @brief servomotor status
- * @note the turning direction is determined as if user is facing the motor, may
- * subject to change depending on motor type
- */
-typedef enum {
-  TURNING_CLOCKWISE = -1,   /* Servomotor is turning clockwisely         */
-  INPUT_REJECT = 0,         /* Servomotor rejecting current target input */
-  TURNING_ANTICLOCKWISE = 1 /* Servomotor is turning anticlockwisely     */
-} servo_status_t;
-
-/**
- * @brief ServoMotor class
- */
-class ServoMotor : public control::MotorCANBase {
+class Motor6020 : public MotorCANBase {
 public:
   /* constructor wrapper over MotorCANBase */
-  ServoMotor(servo_t *servo, float align_angle = -1, float proximity_in = 0.05,
-             float proximity_out = 0.05);
+  Motor6020(CANRAW::CAN *can, uint16_t rx_id);
+  /* implements data update callback */
+  void UpdateData(const uint8_t data[]) override final;
+  /* implements data printout */
+  void PrintData() const override final;
+  /* override base implementation with max current protection */
+  void SetOutput(int16_t val) override final;
 
-  servo_status_t SetTarget(const float target, bool override = false);
+  int16_t GetCurr() const override final;
 
-  void SetMaxSpeed(const float max_speed);
-
-  void SetMaxAcceleration(const float max_acceleration);
-
-  void Calcoutput();
-
-  bool Holding() const;
-
-  float GetTarget() const;
+  uint16_t GetTemp() const override final;
 
 private:
-  control::MotorCANBase *motor_;
-  float max_speed_;
-  float max_acceleration_;
-  float transmission_ratio_;
-  float proximity_in_;
-  float proximity_out_;
-
-  bool hold_;
-  uint32_t start_time_;
-  float target_angle_;
-  float align_angle_;
-  float motor_angle_;
-  float motor_speed_;
-  float motor_acceleration_;
+  volatile int16_t raw_current_get_ = 0;
+  volatile uint8_t raw_temperature_ = 0;
 };
+
+} // namespace control

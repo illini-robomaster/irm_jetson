@@ -1,1 +1,0 @@
-scripts/minipc-tmux-daemon-helper.sh

@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------- #
 #                                                                        #
-#  Copyright (C) 2024                                                    #
+#  Copyright (C) 2025                                                    #
 #  Illini RoboMaster @ University of Illinois at Urbana-Champaign.       #
 #                                                                        #
 #  This program is free software: you can redistribute it and/or modify  #
@@ -17,6 +17,12 @@
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.  #
 #                                                                        #
 # ---------------------------------------------------------------------- #
+
+set(INC ${CMAKE_SOURCE_DIR}/src/include)
+
+file(GLOB BOARD ${INC}/board/*.cc)
+file(GLOB MOTOR ${INC}/motor/*.cc)
+file(GLOB CAMERA ${INC}/camera/*.cc)
 
 add_subdirectory(examples)
 add_subdirectory(vehicles)

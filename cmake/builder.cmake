@@ -1,5 +1,10 @@
 # Compatibility
-set(REQUIRED_LIBS stdc++fs)
+if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 9.0 AND
+CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
+  set(REQUIRED_LIBS stdc++fs pthread)
+else()
+  set(REQUIRED_LIBS "")
+endif()
 
 # Custom function to create executables and run targets
 function(irm_add_executable TARGET_NAME)

@@ -2,7 +2,11 @@
 #include <cerrno>
 #include <climits>
 #include <cstring>
+#if defined(__GNUC__) && __GNUC__ <= 9
 #include <experimental/filesystem>
+#else
+#include <filesystem>
+#endif
 #include <fcntl.h>
 #include <iostream>
 #include <string>

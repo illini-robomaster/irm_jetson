@@ -21,41 +21,35 @@ Usage: $(basename "$0") [options] {[i]nstall,[c]lean,[r]einstall}
 
   -h, --help            Show this message
   -s, --systemd-dir     Set systemd directory
-  -b, --localbin-dir    Set localbin directory
-  -U, --user            Set user to configure for
   -u, --umask           Set umask
   -i, --interactive     Run interactively
 
-Requires superuser.
 Install will (in order):
-    (1) Creates and registers service to run startup script at boot
-    (2) Creates startup script
-    (3) Enables lingering for chosen user such that their user services are
-        started at boot.
+    (1) Create and register service to run startup script at boot
+    (2) Create startup script
+    (3) Enable lingering for current user such that user services are started
+        on boot.
 Clean will (not in order):
     (1) Delete installed files
-    (2) Unregister services
+    (2) Deregister services
     (3) Restore linger status
 EOF
 )
 LOG=.setupparam.log
 SRV=irm-jetston.service
 
-RUN_USER=${USER}
-SYSTEMD_DIR=/etc/systemd/system
-LOCALBIN_DIR=/usr/local/bin
-STARTUP_SCRIPT=irm_jetson_startup.sh
-UMASK_MODE=0022
-user_run_user=
-user_systemd_dir=
-user_localbin_dir=
-user_startup_script=
-user_umask_mode=
-
 script_name=$(basename "$0")
 script_file=$(realpath "$0")
 script_dir=$(realpath "${script_file}" | xargs dirname)
 script_log=${script_dir}/${LOG}
+
+CONF_DIR=${XDG_CONFIG_HOME:-$HOME/.config}
+SYSTEMD_DIR=${CONF_DIR}/systemd/user
+STARTUP_SCRIPT=irm_jetson_startup.sh
+UMASK_MODE=0022
+user_systemd_dir=
+user_startup_script=
+user_umask_mode=
 
 function printhelp() {
   echo "$HELP"
@@ -70,19 +64,9 @@ function install() {
     exit 1
   fi
   if [ ${interactive} ]; then
-    echo Choose user which to run for.
-    echo -n [default=${RUN_USER}]:\ 
-    read user_run_user
-    echo
-
     echo Choose system systemd directory.
     echo -n [default=${SYSTEMD_DIR}]:\ 
     read user_systemd_dir
-    echo
-
-    echo Choose local bin directory.
-    echo -n [default=${LOCALBIN_DIR}]:\ 
-    read user_localbin_dir
     echo
 
     echo Choose startup script name.
@@ -97,9 +81,8 @@ function install() {
   fi
 
   echo Selected configuration:
-  echo "RUN_USER:         ${user_run_user:=$RUN_USER}"
-  echo "SYSTEMD_DIR:      ${user_systemd_dir:=$SYSTEMD_DIR} (system)"
-  echo "LOCALBIN_DIR:     ${user_localbin_dir:=$LOCALBIN_DIR}"
+  echo "USER:             ${USER}"
+  echo "SYSTEMD_DIR:      ${user_systemd_dir:=$SYSTEMD_DIR}"
   echo "STARTUP_SCRIPT:   ${user_startup_script:=$STARTUP_SCRIPT}"
   echo "UMASK_MODE:       ${user_umask_mode:=$UMASK_MODE}"
   echo
@@ -107,7 +90,7 @@ function install() {
   echo "LOG:              ${script_log}"
   echo
 
-  if [ "${user_run_user}" == root ]; then
+  if [ "${USER}" == root ]; then
     echo Selected user should not be root.
     echo Run again with -U.
     exit 1
@@ -125,7 +108,7 @@ function install() {
   # Files
   f_mtdparamlog=${script_log}
   f_systemdservice=${user_systemd_dir}/${SRV}
-  f_startupscript=${user_localbin_dir}/${user_startup_script}
+  f_startupscript=${script_dir}/${user_startup_script}
   # Temporary files
   tf_mtdparamlog=${tmpdir}/"${f_mtdparamlog}"
   tf_systemdservice=${tmpdir}/"${f_systemdservice}"
@@ -139,7 +122,7 @@ Description=Run iRM startup script for Jetson.
 
 [Service]
 Type=oneshot
-ExecStart=${user_localbin_dir}/${user_startup_script}
+ExecStart=${script_dir}/${user_startup_script}
 
 [Install]
 WantedBy=multi-user.target
@@ -185,9 +168,9 @@ EOF
 
   echo +++ Log system states to "${tf_mtdparamlog}"
   # User
-  echo "RUN_USER=${user_run_user}" | tee -a "${tf_mtdparamlog}"
+  echo "USER=${USER}"
   # User linger status
-  loginctl show-user "${user_run_user}" -p Linger | tee -a "${tf_mtdparamlog}"
+  loginctl show-user "${USER}" -p Linger | tee -a "${tf_mtdparamlog}"
 
   echo Created files:
   sed -e '/^[^f]/d' -e "s|^f_.*=\(.*\)|${tmpdir}/\1|" "${tf_mtdparamlog}" |
@@ -241,10 +224,9 @@ EOF
     source "${tmpdir}/${script_log}"
 
     # Lingering
-    echo =================${Linger}
     if [ "${Linger}" == no ]; then
-      loginctl enable-linger "${RUN_USER}"
-      echo Enabled lingering for ${RUN_USER}
+      loginctl enable-linger "${USER}"
+      echo Enabled lingering for ${USER}
     fi
   )
   make_changes "${tmpdir}" \
@@ -252,12 +234,12 @@ EOF
     "${script_dir}" \
     "${script_log}"
 
-  echo Make ${f_startupscript} executable
-  chmod +x "${f_startupscript}"
+  echo Make ${f_startupscript} 0o544
+  chmod 544 "${f_startupscript}"
   echo Reload systemd configuration with \`systemctl --user daemon-reload\`
-  systemctl daemon-reload
+  systemctl --user daemon-reload
   echo Enable ${SRV}
-  systemctl enable "${SRV}"
+  systemctl --user enable "${SRV}"
 
   echo
   echo Done.
@@ -286,7 +268,7 @@ function clean() {
   # Files
   for f in ${!f_@}; do
     [ -f "${!f}" ] &&
-      rm -v "${!f}"
+      rm -fv "${!f}"
   done
   # Directories
   for d in ${!d_@}; do
@@ -294,11 +276,11 @@ function clean() {
   done
   # Changes
   echo Disable ${SRV}
-  systemctl disable "${SRV}"
+  systemctl --user disable "${SRV}"
   if [ "${Linger}" == no ]; then
-    if [ "$(loginctl show-user "${RUN_USER}" -P Linger)" = yes ]; then
-      loginctl disable-linger "${RUN_USER}"
-      echo Disabled lingering for "${RUN_USER}"
+    if [ "$(loginctl show-user "${USER}" -P Linger)" = yes ]; then
+      loginctl disable-linger "${USER}"
+      echo Disabled lingering for "${USER}"
     fi
   fi
 
@@ -309,21 +291,10 @@ function clean() {
 interactive=-
 reinstall=-
 function run() {
-  [ "${EUID}" -ne 0 ] && printhelp 1
   while [ $# -gt 0 ]; do
     case $1 in
     -s | --systemd-dir)
       user_systemd_dir=$2
-      shift
-      shift
-      ;;
-    -b | --localbin-dir)
-      user_localbin_dir=$2
-      shift
-      shift
-      ;;
-    -U | --user)
-      user_run_user=$2
       shift
       shift
       ;;

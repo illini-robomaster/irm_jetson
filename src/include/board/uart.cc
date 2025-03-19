@@ -2,7 +2,11 @@
 #include "board/main.h"
 #include <termios.h>
 
+#if defined(__GNUC__) && __GNUC__ <= 9
 namespace fs = std::experimental::filesystem;
+#else
+namespace fs = std::filesystem;
+#endif
 
 namespace UARTSERIAL {
 
@@ -21,12 +25,10 @@ UART *UART::from_prefix(std::string pfx, int br, const std::string dn,
       // Try to get filesystem path
       dpath = prefix_to_path(pfx, dn);
       if (dpath.empty())
-        std::cerr << "Retrying in " << poll << " second(s)" << std::endl;
-      std::this_thread::sleep_for(std::chrono::seconds(poll));
+        std::this_thread::sleep_for(std::chrono::seconds(poll));
     }
     // Try to open serial
     fd = try_serial_path(dpath, (speed_t)br);
-    // Ignore sleep if found
     if (fd < 0)
       std::this_thread::sleep_for(std::chrono::seconds(poll));
   }

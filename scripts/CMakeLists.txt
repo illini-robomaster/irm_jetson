@@ -18,20 +18,5 @@
 #                                                                        #
 # ---------------------------------------------------------------------- #
 
-cmake_minimum_required(VERSION 3.14)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-set(CMAKE_C_COMPILER "/bin/gcc")
-set(CMAKE_CXX_COMPILER "/bin/g++")
-
-project(iRM_Jetson CXX)
-
-include(cmake/builder.cmake)
-include(cmake/scripts.cmake)  # Hack
-
-add_subdirectory(src)
-add_subdirectory(scripts)
-
-file(COPY "scripts" DESTINATION ".")
-file(COPY "python" DESTINATION ".")
+irm_add_script(system_setup_helper.sh)
+irm_add_script(minipc_tmux_daemon_helper.sh)
