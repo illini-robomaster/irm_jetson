@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------- #
 #                                                                        #
-#  Copyright (C) 2025                                                    #
+#  Copyright (C) 2024                                                    #
 #  Illini RoboMaster @ University of Illinois at Urbana-Champaign.       #
 #                                                                        #
 #  This program is free software: you can redistribute it and/or modify  #
@@ -18,7 +18,6 @@
 #                                                                        #
 # ---------------------------------------------------------------------- #
 
-project(vehicles CXX)
-
-add_subdirectory(engineer)
-add_subdirectory(infantry)
+irm_add_executable(${PROJECT_NAME}-engineer
+  SOURCES "main.cc" "chassis_thread.cc" ${BOARD} ${MOTOR}
+)

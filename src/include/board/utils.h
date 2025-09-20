@@ -18,7 +18,11 @@
  *                                                                          *
  ****************************************************************************/
 
+// TODO: Merge into main.h
+
 #pragma once
+
+#define UNUSED(X) (void)X /* To avoid gcc/g++ warnings */
 
 #include "stdint.h"
 #include <cstdio>

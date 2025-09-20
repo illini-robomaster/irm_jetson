@@ -19,8 +19,6 @@
  ****************************************************************************/
 
 #include <atomic>
-#include <chrono>
-#include <cstring>
 #include <iostream>
 #include <linux/can.h>
 #include <linux/can/raw.h>
@@ -29,7 +27,6 @@
 #include <stdint.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#include <thread>
 #include <unistd.h>
 
 #pragma once
@@ -39,11 +36,6 @@
 namespace CANRAW {
 
 typedef void (*can_rx_callback_t)(const uint8_t data[], void *args);
-
-template <class T>
-constexpr const T &clamp(const T &v, const T &lo, const T &hi) {
-  return v < lo ? lo : hi < v ? hi : v;
-}
 
 typedef void (*can_rx_callback_t)(const uint8_t data[], void *args);
 
@@ -93,8 +85,8 @@ public:
    * @param stop_flag Pointer to atomic bool to control thread execution
    * @param interval_ms Time between receive attempts in microseconds
    */
-  void StartReceiveThread(std::atomic<bool> *stop_flag, int interval_us = 10);
   std::atomic<bool> *StartReceiveThread(int interval_us = 10);
+  std::atomic<bool> *stop_flag_;
 
 private:
   int s;
@@ -102,6 +94,7 @@ private:
   struct ifreq ifr;
   struct can_frame ftx;
   std::map<canid_t, std::pair<can_rx_callback_t, void *>> callback_map;
+  std::atomic<bool> *recieve_thread_present_;
 };
 
 } // namespace CANRAW

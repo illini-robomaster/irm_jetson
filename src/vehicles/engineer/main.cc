@@ -18,27 +18,9 @@
  *                                                                          *
  ****************************************************************************/
 
-#include "board/can.h"
-#include "motor/motor.h"
-#include <unistd.h>
+#include "chassis_thread.h"
 
 int main() {
-  CANRAW::CAN *can = new CANRAW::CAN("can0");
-  control::MotorCANBase *motor = new control::Motor3508(can, 0x207);
-  control::MotorCANBase *motors[] = {motor};
-
-  std::atomic<bool> *can_stop = can->StartReceiveThread();
-  if (can_stop == nullptr) {
-    std::cerr << "Error: Could not start CAN receive thread" << std::endl;
-    return 1;
-  }
-
-  while (true) {
-    motor->SetOutput(400);
-    control::MotorCANBase::TransmitOutput(motors, 1);
-    motor->PrintData();
-    usleep(100);
-  }
-
+  chassis_thread(nullptr);
   return 0;
 }

@@ -18,6 +18,10 @@
  *                                                                          *
  ****************************************************************************/
 #include "can.h"
+#include "utils.h"
+#include <chrono>
+#include <cstring>
+#include <thread>
 
 namespace CANRAW {
 
@@ -36,13 +40,16 @@ CAN::CAN(const char *name) {
   if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
     std::cerr << "Error while binding address" << std::endl;
   }
+
+  stop_flag_->store(false);
+  recieve_thread_present_->store(false);
 }
 
 CAN::~CAN() { this->Close(); }
 
 void CAN::Transmit(canid_t can_id, uint8_t *dat, int len) {
   ftx.can_id = can_id;
-  ftx.can_dlc = clamp(len, 0, CAN_MAX_DLEN);
+  ftx.can_dlc = clip(len, 0, CAN_MAX_DLEN);
   memcpy(ftx.data, dat, sizeof(uint8_t) * ftx.can_dlc);
   if (write(s, &ftx, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
     std::cerr << "Error while sending CAN frame" << std::endl;
@@ -80,21 +87,31 @@ int CAN::DeregisterCanDevice(canid_t can_id) {
   return -1;
 }
 
-void CAN::StartReceiveThread(std::atomic<bool> *stop_flag, int interval_us) {
-  std::thread([this, stop_flag, interval_us]() {
-    while (!stop_flag->load()) {
+std::atomic<bool> *CAN::StartReceiveThread(int interval_us) {
+  if (recieve_thread_present_->load()) {
+    std::cerr << "Error: Receive thread already running" << std::endl;
+    return nullptr;
+  }
+
+  stop_flag_->store(false);
+  recieve_thread_present_->store(true);
+  std::thread([this, interval_us]() {
+    while (!stop_flag_->load()) {
       this->Receive();
       std::this_thread::sleep_for(std::chrono::microseconds(interval_us));
     }
+    recieve_thread_present_->store(false);
   }).detach();
+
+  return stop_flag_;
 }
 
-std::atomic<bool> *CAN::StartReceiveThread(int interval_ms) {
-  std::atomic<bool> *stop_flag = new std::atomic<bool>(false);
-  CAN::StartReceiveThread(stop_flag, interval_ms);
-  return stop_flag;
+void CAN::Close() {
+  // Signal receive thread to stop
+  stop_flag_->store(true);
+  recieve_thread_present_->store(false);
+  // Close socket
+  close(s);
 }
-
-void CAN::Close() { close(s); }
 
 } // namespace CANRAW

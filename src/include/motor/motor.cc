@@ -20,9 +20,9 @@
 
 #include "motor.h"
 #include "board/can.h"
+#include "board/utils.h"
 #include "error_handler.h"
 #include "math.h"
-#include "utils.h"
 
 namespace control {
 

@@ -108,22 +108,25 @@ void MinipcPort::ParseUartBuffer(const uint8_t *data, int32_t length) {
   // Case 2: everything is fresh; package is incomplete
   // Case 3: package contains half previous package and half new package
   // Case 4: package contains half previous package and new package(s)
+
   int i = 0;
+  // Handle case 3 and 4: continue filling buffer from previous incomplete
+  // packet
   if (buffer_index_ > 0) {
-    // Case 3 and 4
-    // copy the remaining bytes from previous package
-    while (i < (int)length) {
+    while (i < length && buffer_index_ < MAX_PACKET_LENGTH) {
       possible_packet[buffer_index_] = data[i];
-      // Parse possible packet if detect tail
-      if (possible_packet[buffer_index_ - 1] == 'E' &&
+
+      // Check for packet tail only if we have at least 2 bytes in buffer
+      if (buffer_index_ >= 1 && possible_packet[buffer_index_ - 1] == 'E' &&
           possible_packet[buffer_index_] == 'D') {
         buffer_index_ = 0;
         VerifyAndParseData();
         break;
       }
+
       buffer_index_++;
       i++;
-      // drop packet if buffer overflow
+      // Prevent buffer overflow
       if (buffer_index_ >= MAX_PACKET_LENGTH) {
         buffer_index_ = 0;
         break;
@@ -131,37 +134,35 @@ void MinipcPort::ParseUartBuffer(const uint8_t *data, int32_t length) {
     }
   }
 
-  while (i < (int)length) {
+  // Process remaining data
+  while (i < length) {
     if (buffer_index_ == 0) {
-      if (i == (int)length - 1) {
-        // A special case to handle the last byte; buffer_index_ must be zero
-        if (data[i] == 'S') {
-          possible_packet[buffer_index_++] = data[i];
-        }
-        return;
-      }
-      if (data[i] == 'S' && data[i + 1] == 'T') {
-        // Detect packet head; start copying
+      // Look for packet header 'ST'
+      if (i <= length - 2 && data[i] == 'S' && data[i + 1] == 'T') {
+        // Found header, start copying
         possible_packet[buffer_index_++] = data[i++];
         possible_packet[buffer_index_++] = data[i++];
       } else {
+        // Skip non-header bytes
         i++;
       }
     } else {
-      possible_packet[buffer_index_] = data[i];
-      // Parse possible packet if detect tail
-      if (possible_packet[buffer_index_ - 1] == 'E' &&
-          possible_packet[buffer_index_] == 'D') {
-        buffer_index_ = 0;
-        VerifyAndParseData();
-      } else {
-        // If not packet end, continue
-        buffer_index_++;
-        i++;
-        // drop packet if buffer overflow
-        if (buffer_index_ >= MAX_PACKET_LENGTH) {
+      // Continue filling buffer
+      if (buffer_index_ < MAX_PACKET_LENGTH) {
+        possible_packet[buffer_index_] = data[i];
+        // Check for packet tail only if we have at least 2 bytes in buffer
+        if (buffer_index_ >= 1 && possible_packet[buffer_index_ - 1] == 'E' &&
+            possible_packet[buffer_index_] == 'D') {
           buffer_index_ = 0;
+          VerifyAndParseData();
+        } else {
+          buffer_index_++;
+          i++;
         }
+      } else {
+        // Buffer overflow, reset
+        buffer_index_ = 0;
+        i++;
       }
     }
   }

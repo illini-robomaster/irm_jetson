@@ -20,10 +20,8 @@
 
 #pragma once
 
-#include <linux/can.h>
-#define UNUSED(X) (void)X /* To avoid gcc/g++ warnings */
-
 #include "board/can.h"
+#include <linux/can.h>
 
 namespace control {
 constexpr int MOTOR_RANGE = 30000; // TODO: 32767 or 30000?
