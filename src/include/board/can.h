@@ -37,8 +37,6 @@ namespace CANRAW {
 
 typedef void (*can_rx_callback_t)(const uint8_t data[], void *args);
 
-typedef void (*can_rx_callback_t)(const uint8_t data[], void *args);
-
 class CAN {
 public:
   CAN(const char *name = "can0");
@@ -94,7 +92,7 @@ private:
   struct ifreq ifr;
   struct can_frame ftx;
   std::map<canid_t, std::pair<can_rx_callback_t, void *>> callback_map;
-  std::atomic<bool> *recieve_thread_present_;
+  std::atomic<bool> *receive_thread_present_;
 };
 
 } // namespace CANRAW

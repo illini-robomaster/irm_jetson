@@ -42,7 +42,7 @@ CAN::CAN(const char *name) {
   }
 
   stop_flag_->store(false);
-  recieve_thread_present_->store(false);
+  receive_thread_present_->store(false);
 }
 
 CAN::~CAN() { this->Close(); }
@@ -88,19 +88,19 @@ int CAN::DeregisterCanDevice(canid_t can_id) {
 }
 
 std::atomic<bool> *CAN::StartReceiveThread(int interval_us) {
-  if (recieve_thread_present_->load()) {
+  if (receive_thread_present_->load()) {
     std::cerr << "Error: Receive thread already running" << std::endl;
     return nullptr;
   }
 
   stop_flag_->store(false);
-  recieve_thread_present_->store(true);
+  receive_thread_present_->store(true);
   std::thread([this, interval_us]() {
     while (!stop_flag_->load()) {
       this->Receive();
       std::this_thread::sleep_for(std::chrono::microseconds(interval_us));
     }
-    recieve_thread_present_->store(false);
+    receive_thread_present_->store(false);
   }).detach();
 
   return stop_flag_;
@@ -109,7 +109,7 @@ std::atomic<bool> *CAN::StartReceiveThread(int interval_us) {
 void CAN::Close() {
   // Signal receive thread to stop
   stop_flag_->store(true);
-  recieve_thread_present_->store(false);
+  receive_thread_present_->store(false);
   // Close socket
   close(s);
 }
